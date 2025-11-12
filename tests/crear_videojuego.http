@@ -2,10 +2,6 @@ POST http://localhost:5002/videojuegos/crear
 Content-Type: application/json
 
 {
-    "id" : 0,
     "nombre" : "Red Dead 1",
-    "categoria" : "Acción",
-    "plataformas" : ["PC", "PS5"],
-    "fecha" : "01-10-2020",
     "estado" : "Nuevo"
 }
