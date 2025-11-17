@@ -14,9 +14,45 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum Rol {
+  USUARIO
+  ADMIN
+}
+
+enum Sexo {
+  MASCULINO
+  FEMENINO
+}
+
 model Videojuego {
   id String @id @default(uuid())
   nombre String
   fecha DateTime @default(now()) 
   estado String
+  categoria_id String?
+  categoria Categoria? @relation(fields: [categoria_id], references: [id])
+}
+
+model Categoria {
+  id String @id @default(uuid())
+  nombre String
+  videojuegos Videojuego[]
+}
+
+model Usuario {
+  id String @id @default(uuid())
+  username String
+  password String
+  rol Rol
+  estado Boolean
+  perfil Perfil?
+}
+
+model Perfil {
+  id String @id @default(uuid())
+  nombre String
+  apellido String
+  sexo Sexo
+  usuario_id String @unique
+  usuario Usuario @relation(fields: [usuario_id], references: [id])
 }

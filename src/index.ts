@@ -20,9 +20,23 @@ app.use(bodyParser.urlencoded({
 app.get("/videojuegos", async (req : Request, resp : Response) => {
     const prisma = new PrismaClient()
 
-    const videojuegos = await prisma.videojuego.findMany()
+    const videojuegos = await prisma.videojuego.findMany({
+        omit : {
+            categoria_id : true
+        },
+        include : {
+            categoria : true
+        }
+    })
 
-    resp.status(200).json(videojuegos)
+    const videojuegosConCategoria = videojuegos.map( (vj) => {
+        return {
+            ...vj,
+            categoria : vj.categoria?.nombre
+        }
+    } )
+
+    resp.status(200).json(videojuegosConCategoria)
 })
 
 // Endpoint GET para eliminar un videojuego
@@ -86,36 +100,42 @@ app.post("/videojuegos/crear", async (req : Request, resp : Response) => {
     const data = req.body
     const prisma = new PrismaClient()
 
-    const vj = await prisma.videojuego.create({
-        data : data
-    })
-
-    resp.status(200).json(vj)
+    try{
+        const vj = await prisma.videojuego.create({
+            data : data
+        })
+        resp.status(200).json(vj)
+    }catch(e) {
+        resp.status(400).json({
+            error : e
+        })
+        return
+    }
 })
 
 // Endpoint POST para modificar un videojuego
-app.post("/videojuegos/actualizar", (req : Request, resp : Response) => {
+app.post("/videojuegos/actualizar", async (req : Request, resp : Response) => {
     const data = req.body
 
-    for (let i = 0; i < dataVideojuegos.length; i++) {
-        const vj = dataVideojuegos[i]!
-        if (vj.id == data.id) {
-            // Es el vj a modificar
-            vj.nombre = data.nombre
-            vj.categoria = data.categoria
-            vj.plataformas = data.plataformas
-            vj.fecha = data.fecha
-            vj.estado = data.estado
-
-            resp.status(200).json(vj)
-            return
-        }
+    const prisma = new PrismaClient()
+    
+    try {
+        await prisma.videojuego.update({
+            where : {
+                id : data.id
+            },
+            data : data
+        })
+        resp.status(200).json({
+            error : ""
+        })
+        return
+    }catch(e) {
+        resp.status(400).json({
+            error : e
+        })
+        return
     }
-
-    resp.status(400).json({
-        error: "El id que ha enviado no existe."
-    })
-    return
 })
 
 

@@ -2,6 +2,7 @@ POST http://localhost:5002/videojuegos/crear
 Content-Type: application/json
 
 {
-    "nombre" : "Red Dead 1",
-    "estado" : "Nuevo"
+    "nombre" : "Final Fantasy",
+    "estado" : "Nuevo",
+    "categoria_id" : "e412e1bb-7990-48f7-a6ee-0885fb15c64a"
 }
