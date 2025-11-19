@@ -31,12 +31,19 @@ model Videojuego {
   estado String
   categoria_id String?
   categoria Categoria? @relation(fields: [categoria_id], references: [id])
+  plataformas Plataforma[] @relation("Videojuego_Plataforma")
 }
 
 model Categoria {
   id String @id @default(uuid())
   nombre String
   videojuegos Videojuego[]
+}
+
+model Plataforma {
+  id String @id @default(uuid())
+  nombre String
+  videojuegos Videojuego[] @relation("Videojuego_Plataforma")
 }
 
 model Usuario {

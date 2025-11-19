@@ -25,7 +25,8 @@ app.get("/videojuegos", async (req : Request, resp : Response) => {
             categoria_id : true
         },
         include : {
-            categoria : true
+            categoria : true,
+            plataformas : true
         }
     })
 
