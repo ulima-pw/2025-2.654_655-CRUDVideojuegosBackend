@@ -2,7 +2,11 @@ POST http://localhost:5002/videojuegos/crear
 Content-Type: application/json
 
 {
-    "nombre" : "Final Fantasy",
+    "nombre" : "Football Manager 2026",
     "estado" : "Nuevo",
-    "categoria_id" : "e412e1bb-7990-48f7-a6ee-0885fb15c64a"
+    "categoria_id" : "e412e1bb-7990-48f7-a6ee-0885fb15c64a",
+    "plataformas" : [
+        { "id" : "2a1a12c0-970e-4919-9b28-f66646bd6601"},
+        { "id" : "6bbc3087-b082-4402-940d-ebc152d11e7a"}
+    ]
 }

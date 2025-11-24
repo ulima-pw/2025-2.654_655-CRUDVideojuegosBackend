@@ -15,6 +15,23 @@ app.use(bodyParser.urlencoded({
     extended : true
 }))
 
+// Endpoint GET para obtener categorias
+app.get("/categorias", async (req : Request, resp : Response) => {
+    const prisma = new PrismaClient()
+
+    const categorias = await prisma.categoria.findMany()
+
+    resp.status(200).json(categorias)
+})
+
+// Endpoint GET para obtener plataformas
+app.get("/plataformas", async (req : Request, resp : Response) => {
+    const prisma = new PrismaClient()
+
+    const plataformas = await prisma.plataforma.findMany()
+
+    resp.status(200).json(plataformas)
+})
 
 // Endpoint GET para obtener videojuegos
 app.get("/videojuegos", async (req : Request, resp : Response) => {
@@ -31,9 +48,13 @@ app.get("/videojuegos", async (req : Request, resp : Response) => {
     })
 
     const videojuegosConCategoria = videojuegos.map( (vj) => {
+        const plataformasComoString = vj.plataformas.map( (p) => {
+            return p.nombre
+        } )
         return {
             ...vj,
-            categoria : vj.categoria?.nombre
+            categoria : vj.categoria?.nombre,
+            plataformas : plataformasComoString
         }
     } )
 
@@ -103,7 +124,14 @@ app.post("/videojuegos/crear", async (req : Request, resp : Response) => {
 
     try{
         const vj = await prisma.videojuego.create({
-            data : data
+            data : {
+                nombre : data.nombre,
+                categoria_id : data.categoria_id,
+                estado : data.estado,
+                plataformas : {
+                    connect : data.plataformas
+                }
+            }
         })
         resp.status(200).json(vj)
     }catch(e) {
@@ -125,7 +153,14 @@ app.post("/videojuegos/actualizar", async (req : Request, resp : Response) => {
             where : {
                 id : data.id
             },
-            data : data
+            data : {
+                nombre : data.nombre,
+                categoria_id : data.categoria_id,
+                estado : data.estado,
+                plataformas : {
+                    set : data.plataformas
+                }
+            }
         })
         resp.status(200).json({
             error : ""
