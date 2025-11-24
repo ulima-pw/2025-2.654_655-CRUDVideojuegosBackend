@@ -63,8 +63,7 @@ app.get("/videojuegos", async (req : Request, resp : Response) => {
 
 // Endpoint GET para eliminar un videojuego
 // http://localhost:5002/videojuegos/eliminar?id=1
-app.get("/videojuegos/eliminar", (req : Request, resp : Response) => {
-    console.log("ENTRA")
+app.get("/videojuegos/eliminar", async (req : Request, resp : Response) => {
     const id = req.query.id
 
     if (id == undefined) {
@@ -74,28 +73,28 @@ app.get("/videojuegos/eliminar", (req : Request, resp : Response) => {
         return
     }
 
-    let posicion = -1;
-    for (let i =0; i < dataVideojuegos.length; i++) {
-        if (dataVideojuegos[i]!.id == parseInt(id.toString()) ) {
-            posicion = i
-            break
-        }
-    }
-    if (posicion == -1) {
+    const prisma = new PrismaClient()
+
+    try {
+        await prisma.videojuego.delete({
+            where : {
+                id : id.toString()
+            }
+        })
+        resp.status(200).json({
+            error : ""
+        })
+    }catch (e) {
         resp.status(400).json({
-            error : "Id enviado no existe"
+            error : e
         })
         return
     }
-    dataVideojuegos.splice(posicion, 1)
-    resp.status(200).json({
-        error : ""
-    })
 })
 
 // Endpoint GET para obtener data de un videojuego
 // http://localhost:5002/videojuego/2
-app.get("/videojuegos/:id", (req : Request, resp : Response) => {
+app.get("/videojuegos/:id", async (req : Request, resp : Response) => {
     const id = req.params.id
 
     if (id == undefined) {
@@ -105,16 +104,26 @@ app.get("/videojuegos/:id", (req : Request, resp : Response) => {
         return
     }
 
-    const videojuegosFiltrados = dataVideojuegos.filter((vj :Videojuego) => {
-        return vj.id == parseInt(id)
-    })
-    if (videojuegosFiltrados.length == 0) {
-        resp.status(400).json({
-            error : "El id que ha enviado no existe."
+    const prisma = new PrismaClient() 
+    try {
+        const vj = await prisma.videojuego.findUniqueOrThrow({
+            where : {
+                id : id.toString()
+            },
+            omit : {
+                categoria_id : true
+            },
+            include : {
+                categoria : true,
+                plataformas : true
+            }
         })
-        return
+        resp.status(200).json(vj)
+    }catch(e) {
+        resp.status(400).json({
+            error : e
+        })
     }
-    resp.status(200).json(videojuegosFiltrados[0])
 })
 
 // Endpoint POST para registrar un videojuego
